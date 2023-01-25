@@ -78,7 +78,7 @@ jobs:
 
 
       - name: "Configure target ${{ matrix.target }}"
-        if: ${{ matrix.target }} != "x86_64-multilib-linux-musl"
+        if: matrix.target != "x86_64-multilib-linux-musl"
         run: |-
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
           ./ct-ng
@@ -95,7 +95,7 @@ jobs:
 
           
       - name: "Configure target (musl)"
-        if: ${{ matrix.target }} == "x86_64-multilib-linux-musl"
+        if: matrix.target == "x86_64-multilib-linux-musl"
         run: |-
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
           ./ct-ng ${{ matrix.target }}
