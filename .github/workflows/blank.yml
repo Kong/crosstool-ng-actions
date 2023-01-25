@@ -135,7 +135,7 @@ jobs:
         run: |-
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
 
-          tar -C $HOME/x-tools/${{ matrix.target }} zcvf ../output-${{ matrix.target }}.tar.gz
+          tar -C $GITHUB_WORKSPACE/x-tools/${{ matrix.target }} zcvf ../output-${{ matrix.target }}.tar.gz
           echo "source_escaped=${REPO%%/*}_${REPO##*/}" >> $GITHUB_OUTPUT
 
       - id: upload-artifacts
