@@ -5,7 +5,8 @@ name: Build cross compilers
       do_release:
         description: Create a release and upload files? (type "yes" to create)
         required: true
-        default: 'no'
+        type: boolean
+        default: false
       release:
         description: Release tag and name
         required: true
