@@ -19,7 +19,7 @@ jobs:
       - name: Create release
         uses: ncipollo/release-action@v1
         id: create_release
-        if: '${{ github.event.inputs.do_release == ''yes'' }}'
+        if: '${{ github.event.inputs.do_release == ''true'' }}'
         with:
           tag: '${{ github.event.inputs.release }}'
           name: '${{ github.event.inputs.release }}'
