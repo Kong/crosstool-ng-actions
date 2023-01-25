@@ -123,6 +123,7 @@ jobs:
           ./ct-ng ${{ matrix.target }}
 
       - name: 'Build ${{ matrix.target }}'
+        if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |-
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
 
