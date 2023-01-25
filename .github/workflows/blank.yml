@@ -74,7 +74,9 @@ jobs:
         with:
           path: |
             x-tools
-          key: ${{ hashFiles('.github/**.yml') }}-${{ matrix.target }}
+          #key: ${{ hashFiles('.github/**.yml') }}-${{ matrix.target }}
+          # for testing
+          key: ${{ matrix.target }}
 
       - name: 'Install dependencies'
         if: steps.cache-deps.outputs.cache-hit != 'true'
@@ -133,12 +135,18 @@ jobs:
 
           ls $HOME/x-tools/
 
-      - name: 'Package ${{ matrix.target }}'
+      - name: 'Package ${{ matrix.target }} (aarch64-unknown-linux-gnu)'
         id: package
         run: |-
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
 
-          tar -C $GITHUB_WORKSPACE/x-tools/${{ matrix.target }} zcvf ../output-${{ matrix.target }}.tar.gz
+          target=${{ matrix.target }}
+          if [[ "$target" != "x86_64-multilib-linux-musl" ]]; then
+            target="aarch64-unknown-linux-gnu"
+          fi
+
+          tar -zcvf ../output-${{ matrix.target }}.tar.gz -C $GITHUB_WORKSPACE/x-tools/$target
+
 
       - id: upload-artifacts
         name: Upload artifacts
