@@ -10,6 +10,9 @@ name: Build cross compilers
       release:
         description: Release tag and name
         required: true
+permissions:
+  contents: write # create release
+
 jobs:
   prepare:
     runs-on: ubuntu-latest
@@ -120,6 +123,8 @@ jobs:
 
           # XXX https://github.com/crosstool-ng/crosstool-ng/issues/1832
           sed -i 's/CT_ZLIB_VERSION="1.2.12"/CT_ZLIB_VERSION="1.2.13"/' .config
+
+          export HOME=$GITHUB_WORKSPACE
 
           ./ct-ng build
 
