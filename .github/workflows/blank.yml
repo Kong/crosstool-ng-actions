@@ -33,10 +33,29 @@ jobs:
     strategy:
       matrix:
         include:
-          - target: x86_64-centos7-linux-gnu
-            vendor: centos7
-            libc: "2.17"
-            linux: "3.10"
+          # https://distrowatch.com/table.php?distribution=redhat
+          # centos8 same as rhel8
+          - target: aarch64-centos8-linux-gnu
+            vendor: centos8
+            libc: "2.28"
+            linux: "4.18"
+          - target: aarch64-centos9-linux-gnu
+            vendor: centos9
+            libc: "2.34"
+            linux: "5.14"
+
+          # https://docs.aws.amazon.com/linux/al2022/release-notes/version-compare-al2022.html
+          - target: aarch64-amazonlinux2-linux-gnu
+            vendor: amazonlinux2
+            libc: "2.26"
+            linux: "4.14"
+          - target: aarch64-amazonlinux2022-linux-gnu
+            vendor: amazonlinux2022
+            libc: "2.34"
+            linux: "5.15"
+
+          - target: x86_64-multilib-linux-musl
+
     env:
       TARGET: '${{ matrix.target }}'
       CROSSTOOL_NG_VERSION: '1.25.0'
@@ -59,31 +78,33 @@ jobs:
 
 
       - name: "Configure target"
+        if: ${{ matrix.target }} != "x86_64-multilib-linux-musl"
         run: |-
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
           ./ct-ng
 
-          sed -i "/CT_LINUX_V_3_10/d" ./samples/x86_64-centos7-linux-gnu/crosstool.config
-          sed -i "/CT_GLIBC_V_2_17/d" ./samples/x86_64-centos7-linux-gnu/crosstool.config
-          sed -i "/CT_TARGET_VENDOR/d" ./samples/x86_64-centos7-linux-gnu/crosstool.config
-          
-          echo 'CT_ZLIB_VERSION="1.2.13"' >> ./samples/x86_64-centos7-linux-gnu/crosstool.config
+          sed -i "/CT_TARGET_VENDOR/d" ./samples/aarch64-unknown-linux-gnu/crosstool.config
 
           linux_ver=${{ matrix.linux }}
-          echo "CT_LINUX_V_${linux_ver//./_}=y" >> ./samples/x86_64-centos7-linux-gnu/crosstool.config
+          echo "CT_LINUX_V_${linux_ver//./_}=y" >> ./samples/aarch64-unknown-linux-gnu/crosstool.config
 
           libc_ver=${{ matrix.libc }}
-          echo "CT_GLIBC_V_${libc_ver//./_}=y" >> ./samples/x86_64-centos7-linux-gnu/crosstool.config
+          echo "CT_GLIBC_V_${libc_ver//./_}=y" >> ./samples/aarch64-unknown-linux-gnu/crosstool.config
 
-          ./ct-ng x86_64-centos7-linux-gnu
+          ./ct-ng aarch64-unknown-linux-gnu
 
-          # XXX https://github.com/crosstool-ng/crosstool-ng/issues/1832
-          sed -i 's/CT_ZLIB_VERSION="1.2.12"/CT_ZLIB_VERSION="1.2.13"/' .config
           
+      - name: "Configure target"
+        if: ${{ matrix.target }} == "x86_64-multilib-linux-musl"
+        run: |-
+          ./ct-ng ${{ matrix.target }}
 
       - name: 'Build ${{ matrix.target }}'
         run: |-
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
+
+          # XXX https://github.com/crosstool-ng/crosstool-ng/issues/1832
+          sed -i 's/CT_ZLIB_VERSION="1.2.12"/CT_ZLIB_VERSION="1.2.13"/' .config
 
           ./ct-ng build
 
