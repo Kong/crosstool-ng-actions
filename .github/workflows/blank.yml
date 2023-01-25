@@ -26,10 +26,14 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+
   compile:
     needs: prepare
     runs-on: ubuntu-latest
     continue-on-error: true
+    env:
+      TARGET: '${{ matrix.target }}'
+      CROSSTOOL_NG_VERSION: '1.25.0'
     strategy:
       matrix:
         include:
@@ -56,11 +60,21 @@ jobs:
 
           - target: x86_64-multilib-linux-musl
 
-    env:
-      TARGET: '${{ matrix.target }}'
-      CROSSTOOL_NG_VERSION: '1.25.0'
     steps:
+      - name: Checkout source code
+        uses: actions/checkout@v3
+
+      - name: Cache Packages
+        id: cache-deps
+        if: env.GHA_CACHE == 'true'
+        uses: actions/cache@v3
+        with:
+          path: |
+            x-tools
+          key: ${{ hashFiles('.github/**.yml') }}-${{ matrix.target }}
+
       - name: 'Install dependencies'
+        if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |-
           sudo apt update
           sudo apt install build-essential autoconf bison flex texinfo \
@@ -68,6 +82,7 @@ jobs:
             python3-distutils git unzip
 
       - name: "Download and build crosstool-ng"
+        if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |-
           wget http://crosstool-ng.org/download/crosstool-ng/crosstool-ng-$CROSSTOOL_NG_VERSION.tar.bz2
           tar xf crosstool-ng-$CROSSTOOL_NG_VERSION.tar.bz2
@@ -76,9 +91,8 @@ jobs:
           make
           sudo make install
 
-
       - name: "Configure target ${{ matrix.target }}"
-        if: matrix.target != 'x86_64-multilib-linux-musl'
+        if: matrix.target != 'x86_64-multilib-linux-musl' && steps.cache-deps.outputs.cache-hit != 'true'
         run: |-
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
           ./ct-ng
@@ -92,10 +106,9 @@ jobs:
           echo "CT_GLIBC_V_${libc_ver//./_}=y" >> ./samples/aarch64-unknown-linux-gnu/crosstool.config
 
           ./ct-ng aarch64-unknown-linux-gnu
-
           
       - name: "Configure target (musl)"
-        if: matrix.target == 'x86_64-multilib-linux-musl'
+        if: matrix.target == 'x86_64-multilib-linux-musl' && steps.cache-deps.outputs.cache-hit != 'true'
         run: |-
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
           ./ct-ng ${{ matrix.target }}
@@ -119,120 +132,24 @@ jobs:
           tar -C $HOME/x-tools/${{ matrix.target }} zcvf ../output-${{ matrix.target }}.tar.gz
           echo "source_escaped=${REPO%%/*}_${REPO##*/}" >> $GITHUB_OUTPUT
 
-      - id: upload-artifacts-0
-        name: Upload artifacts 0
+      - id: upload-artifacts
+        name: Upload artifacts
         if: '${{ success() }}'
         continue-on-error: false
         uses: actions/upload-artifact@v3
         with:
-          path: 'output-${{ matrix.target }}.tar.gz'
-          name: '${{ matrix.target }}-${{ steps.package.outputs.source_escaped }}'
-      - id: upload-releases-0
-        name: Upload to releases 0
+          path: '${{ matrix.target }}.tar.gz'
+          name: '${{ matrix.target }}.tar.gz'
+
+      - id: upload-releases
+        name: Upload to releases
         uses: actions/upload-release-asset@v1
         if: '${{ github.event.inputs.do_release == ''yes'' }}'
         continue-on-error: false
         with:
-          asset_path: 'output-${{ matrix.target }}.tar.gz'
+          asset_path: '${{ matrix.target }}.tar.gz'
           asset_name: >-
-            output-${{ matrix.target }}-${{ steps.package.outputs.source_escaped
-            }}.tar.gz
-          upload_url: '${{ needs.prepare.outputs.upload_url }}'
-          asset_content_type: application/gzip
-        env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-      - id: upload-artifacts-1
-        name: Upload artifacts 1
-        if: '${{ steps.upload-artifacts-0.outcome == ''failure'' }}'
-        continue-on-error: false
-        uses: actions/upload-artifact@v3
-        with:
-          path: 'output-${{ matrix.target }}.tar.gz'
-          name: '${{ matrix.target }}-${{ steps.package.outputs.source_escaped }}'
-      - id: upload-releases-1
-        name: Upload to releases 1
-        uses: actions/upload-release-asset@v1
-        if: >-
-          ${{ github.event.inputs.do_release == 'yes' &&
-          steps.upload-releases-0.outcome == 'failure' }}
-        continue-on-error: false
-        with:
-          asset_path: 'output-${{ matrix.target }}.tar.gz'
-          asset_name: >-
-            output-${{ matrix.target }}-${{ steps.package.outputs.source_escaped
-            }}.tar.gz
-          upload_url: '${{ needs.prepare.outputs.upload_url }}'
-          asset_content_type: application/gzip
-        env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-      - id: upload-artifacts-2
-        name: Upload artifacts 2
-        if: '${{ steps.upload-artifacts-1.outcome == ''failure'' }}'
-        continue-on-error: false
-        uses: actions/upload-artifact@v3
-        with:
-          path: 'output-${{ matrix.target }}.tar.gz'
-          name: '${{ matrix.target }}-${{ steps.package.outputs.source_escaped }}'
-      - id: upload-releases-2
-        name: Upload to releases 2
-        uses: actions/upload-release-asset@v1
-        if: >-
-          ${{ github.event.inputs.do_release == 'yes' &&
-          steps.upload-releases-1.outcome == 'failure' }}
-        continue-on-error: false
-        with:
-          asset_path: 'output-${{ matrix.target }}.tar.gz'
-          asset_name: >-
-            output-${{ matrix.target }}-${{ steps.package.outputs.source_escaped
-            }}.tar.gz
-          upload_url: '${{ needs.prepare.outputs.upload_url }}'
-          asset_content_type: application/gzip
-        env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-      - id: upload-artifacts-3
-        name: Upload artifacts 3
-        if: '${{ steps.upload-artifacts-2.outcome == ''failure'' }}'
-        continue-on-error: false
-        uses: actions/upload-artifact@v3
-        with:
-          path: 'output-${{ matrix.target }}.tar.gz'
-          name: '${{ matrix.target }}-${{ steps.package.outputs.source_escaped }}'
-      - id: upload-releases-3
-        name: Upload to releases 3
-        uses: actions/upload-release-asset@v1
-        if: >-
-          ${{ github.event.inputs.do_release == 'yes' &&
-          steps.upload-releases-2.outcome == 'failure' }}
-        continue-on-error: false
-        with:
-          asset_path: 'output-${{ matrix.target }}.tar.gz'
-          asset_name: >-
-            output-${{ matrix.target }}-${{ steps.package.outputs.source_escaped
-            }}.tar.gz
-          upload_url: '${{ needs.prepare.outputs.upload_url }}'
-          asset_content_type: application/gzip
-        env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
-      - id: upload-artifacts-4
-        name: Upload artifacts 4
-        if: '${{ steps.upload-artifacts-3.outcome == ''failure'' }}'
-        continue-on-error: true
-        uses: actions/upload-artifact@v3
-        with:
-          path: 'output-${{ matrix.target }}.tar.gz'
-          name: '${{ matrix.target }}-${{ steps.package.outputs.source_escaped }}'
-      - id: upload-releases-4
-        name: Upload to releases 4
-        uses: actions/upload-release-asset@v1
-        if: >-
-          ${{ github.event.inputs.do_release == 'yes' &&
-          steps.upload-releases-3.outcome == 'failure' }}
-        continue-on-error: true
-        with:
-          asset_path: 'output-${{ matrix.target }}.tar.gz'
-          asset_name: >-
-            output-${{ matrix.target }}-${{ steps.package.outputs.source_escaped
-            }}.tar.gz
+            ${{ matrix.target }}.tar.gz
           upload_url: '${{ needs.prepare.outputs.upload_url }}'
           asset_content_type: application/gzip
         env:
