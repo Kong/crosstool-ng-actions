@@ -48,7 +48,7 @@ jobs:
       - name: "Download and build crosstool-ng $CROSSTOOL_NG_VERSION"
         run: |-
           wget http://crosstool-ng.org/download/crosstool-ng/crosstool-ng-$CROSSTOOL_NG_VERSION.tar.bz2
-          tar xvf crosstool-ng-$CROSSTOOL_NG_VERSION.tar.bz2
+          tar xf crosstool-ng-$CROSSTOOL_NG_VERSION.tar.bz2
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
           ./configure --prefix=/usr
           make
@@ -79,16 +79,20 @@ jobs:
 
       - name: 'Build ${{ matrix.target }}'
         run: |-
+          cd crosstool-ng-$CROSSTOOL_NG_VERSION
+
           make -j4
           make install
           ls output
-        working-directory: mcm
+
       - name: 'Package ${{ matrix.target }}'
         id: package
         run: |-
-          tar -czvf ../output-${{ matrix.target }}.tar.gz output/
+          cd crosstool-ng-$CROSSTOOL_NG_VERSION
+
+          tar -C $HOME/x-tools/${{ matrix.target }} zcvf ../output-${{ matrix.target }}.tar.gz
           echo "source_escaped=${REPO%%/*}_${REPO##*/}" >> $GITHUB_OUTPUT
-        working-directory: mcm
+
       - id: upload-artifacts-0
         name: Upload artifacts 0
         if: '${{ success() }}'
