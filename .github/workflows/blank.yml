@@ -77,7 +77,7 @@ jobs:
           sudo make install
 
 
-      - name: "Configure target"
+      - name: "Configure target ${{ matrix.target }}"
         if: ${{ matrix.target }} != "x86_64-multilib-linux-musl"
         run: |-
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
@@ -94,9 +94,10 @@ jobs:
           ./ct-ng aarch64-unknown-linux-gnu
 
           
-      - name: "Configure target"
+      - name: "Configure target (musl)"
         if: ${{ matrix.target }} == "x86_64-multilib-linux-musl"
         run: |-
+          cd crosstool-ng-$CROSSTOOL_NG_VERSION
           ./ct-ng ${{ matrix.target }}
 
       - name: 'Build ${{ matrix.target }}'
