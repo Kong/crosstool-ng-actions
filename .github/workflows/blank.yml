@@ -58,6 +58,7 @@ jobs:
       - name: "Configure target"
         run: |-
           ct-ng
+          cd crosstool-ng-$CROSSTOOL_NG_VERSION
           
           cat << EOF >> ./samples/x86_64-centos7-linux-gnu/crosstool.config
             CT_CONFIG_VERSION="4"
