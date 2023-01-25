@@ -133,7 +133,7 @@ jobs:
 
           ./ct-ng build
 
-          ls $HOME/x-tools/
+          find $HOME/x-tools/
 
       - name: 'Package ${{ matrix.target }} (aarch64-unknown-linux-gnu)'
         id: package
@@ -145,7 +145,7 @@ jobs:
             target="aarch64-unknown-linux-gnu"
           fi
 
-          tar -zcvf ../output-${{ matrix.target }}.tar.gz -C $GITHUB_WORKSPACE/x-tools/$target
+          tar -zcvf ../output-${{ matrix.target }}.tar.gz -C $GITHUB_WORKSPACE/x-tools/$target .
 
 
       - id: upload-artifacts
