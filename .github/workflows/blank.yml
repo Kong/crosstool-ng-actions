@@ -159,7 +159,7 @@ jobs:
         id: asset_name
         run: |-
           asset=${{ matrix.target }}.tar.gz
-          if [[ "$target" != "x86_64-multilib-linux-musl" ]]; then
+          if [[ "${{ matrix.target }}" != "x86_64-multilib-linux-musl" ]]; then
             asset=${{ matrix.target }}-glibc-${{ matrix.glibc }}-gcc-${{ matrix.gcc }}.tar.gz
           fi
 
