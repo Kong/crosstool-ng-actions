@@ -155,6 +155,16 @@ jobs:
           fi
           tar -zcvf ${{ matrix.target }}.tar.gz -C $GITHUB_WORKSPACE/x-tools/$target .
 
+      - name: 'Set asset name'
+        id: asset_name
+        run: |-
+          asset=${{ matrix.target }}.tar.gz
+          if [[ "$target" != "x86_64-multilib-linux-musl" ]]; then
+            asset=${{ matrix.target }}-glibc-${{ matrix.glibc }}-gcc-${{ matrix.gcc }}.tar.gz
+          fi
+
+          echo "asset=$asset" >> $GITHUB_OUTPUT
+
       - id: upload-artifacts
         name: Upload artifacts
         if: '${{ success() }}'
@@ -162,7 +172,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: '${{ matrix.target }}.tar.gz'
-          name: '${{ matrix.target }}-glibc-${{ matrix.glibc }}-gcc-${{ matrix.gcc }}.tar.gz'
+          name: '${{ steps.asset_name.outputs.asset }}'
 
       - id: upload-releases
         name: Upload to releases
@@ -171,8 +181,7 @@ jobs:
         continue-on-error: false
         with:
           asset_path: '${{ matrix.target }}.tar.gz'
-          asset_name: >-
-            ${{ matrix.target }}-glibc-${{ matrix.glibc }}-gcc-${{ matrix.gcc }}.tar.gz
+          asset_name: '${{ steps.asset_name.outputs.asset }}'
           upload_url: '${{ needs.prepare.outputs.upload_url }}'
           asset_content_type: application/gzip
         env:
