@@ -47,20 +47,24 @@ jobs:
             vendor: rhel8
             glibc: "2.28"
             linux: "4.18"
+            gcc: "8"
           - target: aarch64-rhel9-linux-gnu
             vendor: rhel9
             glibc: "2.34"
             linux: "5.14"
+            gcc: "11"
 
           # https://docs.aws.amazon.com/linux/al2022/release-notes/version-compare-al2022.html
           - target: aarch64-aws2-linux-gnu
             vendor: aws2
             glibc: "2.26"
             linux: "4.14"
+            gcc: "7"
           - target: aarch64-aws2022-linux-gnu
             vendor: aws2022
             glibc: "2.34"
             linux: "5.15"
+            gcc: "11"
 
           - target: x86_64-multilib-linux-musl
 
@@ -102,17 +106,23 @@ jobs:
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
           ./ct-ng
 
-          sed -i "/CT_TARGET_VENDOR/d" ./samples/aarch64-unknown-linux-gnu/crosstool.config
+          config_path=./samples/${{ matrix.target }}
+          cp -r ./samples/aarch64-unknown-linux-gnu $config_path
+
+          sed -i "/CT_TARGET_VENDOR/d" $config_path/crosstool.config
 
           linux_ver=${{ matrix.linux }}
-          echo "CT_LINUX_V_${linux_ver//./_}=y" >> ./samples/aarch64-unknown-linux-gnu/crosstool.config
+          echo "CT_LINUX_V_${linux_ver//./_}=y" >> $config_path/crosstool.config
 
           glibc_ver=${{ matrix.glibc }}
-          echo "CT_GLIBC_V_${glibc_ver//./_}=y" >> ./samples/aarch64-unknown-linux-gnu/crosstool.config
+          echo "CT_GLIBC_V_${glibc_ver//./_}=y" >> $config_path/crosstool.config
 
-          echo "CT_LOG_PROGRESS_BAR=n" >> ./samples/aarch64-unknown-linux-gnu/crosstool.config
+          gcc_major_ver=${{ matrix.gcc }}
+          echo "CT_GCC_V_${gcc_major_ver//./_}=y" >> $config_path/crosstool.config
 
-          ./ct-ng aarch64-unknown-linux-gnu
+          echo "CT_LOG_PROGRESS_BAR=n" >> $config_path/crosstool.config
+
+          ./ct-ng ${{ matrix.target }}
           
       - name: "Configure target (musl)"
         if: matrix.target == 'x86_64-multilib-linux-musl' && steps.cache-deps.outputs.cache-hit != 'true'
@@ -136,16 +146,10 @@ jobs:
 
           find $HOME/x-tools/
 
-      - name: 'Package ${{ matrix.target }} (aarch64-unknown-linux-gnu)'
+      - name: 'Package ${{ matrix.target }}'
         id: package
         run: |-
-          target=${{ matrix.target }}
-          if [[ "$target" != "x86_64-multilib-linux-musl" ]]; then
-            target="aarch64-unknown-linux-gnu"
-          fi
-
-          tar -zcvf ${{ matrix.target }}.tar.gz -C $GITHUB_WORKSPACE/x-tools/$target .
-
+          tar -zcvf ${{ matrix.target }}.tar.gz -C $GITHUB_WORKSPACE/x-tools/${{ matrix.target }} .
 
       - id: upload-artifacts
         name: Upload artifacts
@@ -154,7 +158,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           path: '${{ matrix.target }}.tar.gz'
-          name: '${{ matrix.target }}.tar.gz'
+          name: '${{ matrix.target }}-glibc-${{ matrix.glibc }}-gcc-${{ matrix.gcc }}.tar.gz'
 
       - id: upload-releases
         name: Upload to releases
@@ -164,7 +168,7 @@ jobs:
         with:
           asset_path: '${{ matrix.target }}.tar.gz'
           asset_name: >-
-            ${{ matrix.target }}.tar.gz
+            ${{ matrix.target }}-glibc-${{ matrix.glibc }}-gcc-${{ matrix.gcc }}.tar.gz
           upload_url: '${{ needs.prepare.outputs.upload_url }}'
           asset_content_type: application/gzip
         env:
