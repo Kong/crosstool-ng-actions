@@ -153,7 +153,7 @@ jobs:
           if [[ "$target" != "x86_64-multilib-linux-musl" ]]; then
             target="aarch64-unknown-linux-gnu"
           fi
-          tar -zcvf ${{ matrix.target }}.tar.gz -C $GITHUB_WORKSPACE/x-tools/$target .
+          tar -zcvf ${{ matrix.target }}.tar.gz -C $GITHUB_WORKSPACE/x-tools $target
 
       - name: 'Set asset name'
         id: asset_name
