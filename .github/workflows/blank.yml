@@ -157,6 +157,8 @@ jobs:
           if [[ -n "${{ matrix.vendor }}" ]]; then
             echo "CT_TARGET_VENDOR=${{ matrix.vendor }}" >> $config_path/crosstool.config
           fi
+          
+          cat $config_path/crosstool.config
 
           ./ct-ng ${{ matrix.target }}
 
