@@ -88,6 +88,7 @@ jobs:
       - name: 'Install dependencies'
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |-
+          sudo sed -i "s/azure.archive.ubuntu.com/mirror.arizona.edu/g" /etc/apt/sources.list
           sudo apt update
           sudo apt install build-essential autoconf bison flex texinfo \
             help2man gawk libtool libtool-bin libtool-doc libncurses5-dev python3-dev \
