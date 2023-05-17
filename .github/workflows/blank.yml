@@ -137,6 +137,8 @@ jobs:
           echo "CT_GCC_V_${gcc_major_ver//./_}=y" >> $config_path/crosstool.config
 
           echo "CT_LOG_PROGRESS_BAR=n" >> $config_path/crosstool.config
+          
+          cat $config_path/crosstool.config
 
           ./ct-ng ${{ matrix.target }}
           
