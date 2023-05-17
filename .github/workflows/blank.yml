@@ -163,7 +163,7 @@ jobs:
           if [[ "$target" != *-musl ]]; then
             target="aarch64-unknown-linux-gnu"
           fi
-          tar -zcvf ${{ matrix.target }}.tar.gz -C $GITHUB_WORKSPACE/x-tools $target
+          tar -zcvf ${{ matrix.target }}.tar.gz -C $GITHUB_WORKSPACE/x-tools --exclude=build.log.bz2 $target
 
       - name: 'Set asset name'
         id: asset_name
