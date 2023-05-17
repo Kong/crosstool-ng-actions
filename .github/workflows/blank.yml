@@ -153,10 +153,6 @@ jobs:
           cp -r ${{ github.workspace}}/samples/x86_64-alpine-linux-musl $config_path
 
           echo "CT_LOG_PROGRESS_BAR=n" >> $config_path/crosstool.config
-
-          if [[ -n "${{ matrix.vendor }}" ]]; then
-            echo "CT_TARGET_VENDOR=\"${{ matrix.vendor }}\"" >> $config_path/crosstool.config
-          fi
           
           cat $config_path/crosstool.config
 
