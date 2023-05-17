@@ -65,6 +65,11 @@ jobs:
             glibc: "2.34"
             linux: "5.15"
             gcc: "11"
+          - target: aarch64-aws2023-linux-gnu
+            vendor: aws2023
+            glibc: "2.34"
+            linux: "6.1"
+            gcc: "11"
 
           - target: x86_64-alpine-linux-musl
             vendor: alpine
