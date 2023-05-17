@@ -160,7 +160,7 @@ jobs:
         id: package
         run: |-
           target=${{ matrix.target }}
-          if [[ "$target" != *-musl ]]; then
+          if [[ "$target" != "x86_64-multilib-linux-musl" ]]; then
             target="aarch64-unknown-linux-gnu"
           fi
           tar -zcvf ${{ matrix.target }}.tar.gz -C $GITHUB_WORKSPACE/x-tools --exclude=build.log.bz2 $target
@@ -169,9 +169,9 @@ jobs:
         id: asset_name
         run: |-
           asset=${{ matrix.target }}.tar.gz
-          if [[ "${{ matrix.target }}" != *-musl ]]; then
+          if [[ "$target" != "x86_64-multilib-linux-musl" ]]; then
             libc="-glibc-${{ matrix.glibc }}"
-            if [[ ${{ matrix.glibc }} == "musl" ]]; then libc=""; fi
+            if [[ "${{ matrix.glibc }}" == "musl" ]]; then libc=""; fi
             asset=${{ matrix.target }}${libc}-gcc-${{ matrix.gcc }}.tar.gz
           fi
 
