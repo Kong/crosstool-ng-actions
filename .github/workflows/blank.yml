@@ -67,6 +67,9 @@ jobs:
             gcc: "11"
 
           - target: x86_64-multilib-linux-musl
+          - target: aarch64-linux-musl
+            glibc: "musl"
+            gcc: "11"
 
     steps:
       - name: Checkout source code
@@ -101,7 +104,7 @@ jobs:
           sudo make install
 
       - name: "Configure target ${{ matrix.target }}"
-        if: matrix.target != 'x86_64-multilib-linux-musl' && steps.cache-deps.outputs.cache-hit != 'true'
+        if: matrix.target != 'x86_64-multilib-linux-musl'  && steps.cache-deps.outputs.cache-hit != 'true'
         run: |-
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
           ./ct-ng
@@ -110,21 +113,27 @@ jobs:
           cp -r ./samples/aarch64-unknown-linux-gnu $config_path
 
           sed -i "/CT_TARGET_VENDOR/d" $config_path/crosstool.config
+          
+          if [[ ${{ matrix.glibc }} == "musl" ]]; then
+            echo "CT_LIBC_MUSL=y" >> $config_path/crosstool.config
+            echo "CT_DEBUG_DUMA=y" >> $config_path/crosstool.config
 
-          linux_ver=${{ matrix.linux }}
-          echo "CT_LINUX_V_${linux_ver//./_}=y" >> $config_path/crosstool.config
+          else
+            linux_ver=${{ matrix.linux }}
+            echo "CT_LINUX_V_${linux_ver//./_}=y" >> $config_path/crosstool.config
 
-          glibc_ver=${{ matrix.glibc }}
-          echo "CT_GLIBC_V_${glibc_ver//./_}=y" >> $config_path/crosstool.config
+            glibc_ver=${{ matrix.glibc }}
+            echo "CT_GLIBC_V_${glibc_ver//./_}=y" >> $config_path/crosstool.config
 
-          gcc_major_ver=${{ matrix.gcc }}
-          echo "CT_GCC_V_${gcc_major_ver//./_}=y" >> $config_path/crosstool.config
+            gcc_major_ver=${{ matrix.gcc }}
+            echo "CT_GCC_V_${gcc_major_ver//./_}=y" >> $config_path/crosstool.config
+          fi
 
           echo "CT_LOG_PROGRESS_BAR=n" >> $config_path/crosstool.config
 
           ./ct-ng ${{ matrix.target }}
           
-      - name: "Configure target (musl)"
+      - name: "Configure target (x86_64 musl)"
         if: matrix.target == 'x86_64-multilib-linux-musl' && steps.cache-deps.outputs.cache-hit != 'true'
         run: |-
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
@@ -150,7 +159,7 @@ jobs:
         id: package
         run: |-
           target=${{ matrix.target }}
-          if [[ "$target" != "x86_64-multilib-linux-musl" ]]; then
+          if [[ "$target" != *-musl ]]; then
             target="aarch64-unknown-linux-gnu"
           fi
           tar -zcvf ${{ matrix.target }}.tar.gz -C $GITHUB_WORKSPACE/x-tools $target
@@ -159,8 +168,10 @@ jobs:
         id: asset_name
         run: |-
           asset=${{ matrix.target }}.tar.gz
-          if [[ "${{ matrix.target }}" != "x86_64-multilib-linux-musl" ]]; then
-            asset=${{ matrix.target }}-glibc-${{ matrix.glibc }}-gcc-${{ matrix.gcc }}.tar.gz
+          if [[ "${{ matrix.target }}" != *-musl ]]; then
+            libc="-glibc-${{ matrix.glibc }}"
+            if [[ ${{ matrix.glibc }} == "musl" ]]; then libc=""; fi
+            asset=${{ matrix.target }}${libc}-gcc-${{ matrix.gcc }}.tar.gz
           fi
 
           echo "asset=$asset" >> $GITHUB_OUTPUT
