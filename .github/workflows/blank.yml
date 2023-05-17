@@ -122,6 +122,8 @@ jobs:
           fi
           
           if [[ ${{ matrix.glibc }} == "musl" ]]; then
+            # CT_EXPERIMENTAL=y required for musl
+            echo "CT_EXPERIMENTAL=y" >> $config_path/crosstool.config
             echo "CT_LIBC_MUSL=y" >> $config_path/crosstool.config
             echo "CT_DEBUG_DUMA=y" >> $config_path/crosstool.config
 
