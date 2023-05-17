@@ -67,6 +67,8 @@ jobs:
             gcc: "11"
 
           - target: x86_64-multilib-linux-musl
+            glibc: "musl"
+            gcc: "11"
           - target: aarch64-linux-musl
             glibc: "musl"
             gcc: "11"
