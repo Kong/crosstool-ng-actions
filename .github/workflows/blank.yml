@@ -52,7 +52,7 @@ jobs:
             vendor: rhel9
             glibc: "2.34"
             linux: "5.14"
-            gcc: "11.3.1"
+            gcc: "11.3.0"
 
           # https://docs.aws.amazon.com/linux/al2022/release-notes/version-compare-al2022.html
           - target: aarch64-aws2-linux-gnu
