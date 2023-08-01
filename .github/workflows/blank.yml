@@ -145,7 +145,7 @@ jobs:
           ./ct-ng ${{ matrix.target }}
           
           # replace the minor/patch version
-          sed -i 's/CT_GCC_VERSION=.*/CT_GCC_VERSION="${gcc_ver}"/' .config
+          sed -i 's/CT_GCC_VERSION=.*/CT_GCC_VERSION="'${gcc_ver}'"/' .config
           
       - name: "Configure target (x86_64 musl)"
         if: matrix.target == 'x86_64-alpine-linux-musl' && steps.cache-deps.outputs.cache-hit != 'true'
