@@ -47,38 +47,33 @@ jobs:
             vendor: rhel8
             glibc: "2.28"
             linux: "4.18"
-            gcc: "8"
+            gcc: "8.5.0"
           - target: aarch64-rhel9-linux-gnu
             vendor: rhel9
             glibc: "2.34"
             linux: "5.14"
-            gcc: "11"
+            gcc: "11.3.1"
 
           # https://docs.aws.amazon.com/linux/al2022/release-notes/version-compare-al2022.html
           - target: aarch64-aws2-linux-gnu
             vendor: aws2
             glibc: "2.26"
             linux: "4.14"
-            gcc: "7"
-          - target: aarch64-aws2022-linux-gnu
-            vendor: aws2022
-            glibc: "2.34"
-            linux: "5.15"
-            gcc: "11"
+            gcc: "7.3.1"
           - target: aarch64-aws2023-linux-gnu
             vendor: aws2023
             glibc: "2.34"
             linux: "6.1"
-            gcc: "11"
+            gcc: "11.3.0"
 
           - target: x86_64-alpine-linux-musl
             vendor: alpine
             glibc: "musl"
-            gcc: "11"
+            gcc: "11.3.0"
           - target: aarch64-alpine-linux-musl
             vendor: alpine
             glibc: "musl"
-            gcc: "11"
+            gcc: "11.3.0"
 
     steps:
       - name: Checkout source code
@@ -140,14 +135,17 @@ jobs:
             echo "CT_GLIBC_V_${glibc_ver//./_}=y" >> $config_path/crosstool.config
           fi
 
-          gcc_major_ver=${{ matrix.gcc }}
-          echo "CT_GCC_V_${gcc_major_ver//./_}=y" >> $config_path/crosstool.config
+          gcc_ver=${{ matrix.gcc }}
+          echo "CT_GCC_V_${gcc_ver//./_}=y" >> $config_path/crosstool.config
 
           echo "CT_LOG_PROGRESS_BAR=n" >> $config_path/crosstool.config
           
           cat $config_path/crosstool.config
 
           ./ct-ng ${{ matrix.target }}
+          
+          # replace the minor/patch version
+          sed -i 's/CT_GCC_VERSION=.*/CT_GCC_VERSION="${gcc_ver}"/' .config
           
       - name: "Configure target (x86_64 musl)"
         if: matrix.target == 'x86_64-alpine-linux-musl' && steps.cache-deps.outputs.cache-hit != 'true'
@@ -190,10 +188,12 @@ jobs:
         id: asset_name
         run: |-
           asset=${{ matrix.target }}.tar.gz
+          gcc_ver=${{ matrix.gcc }}
+          gcc_major_ver=${gcc_ver//./_}
           if [[ "$target" != "x86_64-alpine-linux-musl" ]]; then
             libc="-glibc-${{ matrix.glibc }}"
             if [[ "${{ matrix.glibc }}" == "musl" ]]; then libc=""; fi
-            asset=${{ matrix.target }}${libc}-gcc-${{ matrix.gcc }}.tar.gz
+            asset=${{ matrix.target }}${libc}-gcc-${gcc_major_ver}.tar.gz
           fi
 
           echo "asset=$asset" >> $GITHUB_OUTPUT
