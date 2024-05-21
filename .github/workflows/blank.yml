@@ -80,11 +80,11 @@ jobs:
 
     steps:
       - name: Checkout source code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Cache Packages
         id: cache-deps
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             x-tools
@@ -175,7 +175,7 @@ jobs:
         name: Upload artifacts
         if: '${{ success() }}'
         continue-on-error: false
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           path: '${{ matrix.target }}.tar.gz'
           name: '${{ steps.asset_name.outputs.asset }}'
