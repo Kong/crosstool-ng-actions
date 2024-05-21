@@ -118,8 +118,8 @@ jobs:
           ./ct-ng
 
           config_path=./samples/${{ matrix.target }}
-          arch=
-          cp -r ${{ github.workspace}}/samples/${${{ matrix.target }}%%-*}-unknown-linux-gnu $config_path
+          target=${{ matrix.target }}
+          cp -r ${{ github.workspace}}/samples/${target%%-*}-unknown-linux-gnu $config_path
 
           if [[ -n "${{ matrix.vendor }}" ]]; then
             echo "CT_TARGET_VENDOR=\"${{ matrix.vendor }}\"" >> $config_path/crosstool.config
