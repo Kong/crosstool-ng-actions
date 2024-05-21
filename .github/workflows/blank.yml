@@ -164,8 +164,9 @@ jobs:
         run: |-
           asset=${{ matrix.target }}.tar.gz
           gcc_ver=${{ matrix.gcc }}
+          gcc_major_ver=${gcc_ver%%.*}
           libc="-glibc-${{ matrix.glibc }}"
-          asset=${{ matrix.target }}${libc}-gcc-${gcc_ver//./_}.tar.gz
+          asset=${{ matrix.target }}${libc}-gcc-${gcc_major_ver}.tar.gz
 
           echo "asset=$asset" >> $GITHUB_OUTPUT
 
