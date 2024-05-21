@@ -117,6 +117,9 @@ jobs:
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
           ./ct-ng
 
+          find .
+          pwd
+
           config_path=./samples/${{ matrix.target }}
           target=${{ matrix.target }}
           cp -r ${{ github.workspace}}/samples/${target%%-*}-unknown-linux-gnu $config_path
