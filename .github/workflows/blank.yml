@@ -66,11 +66,6 @@ jobs:
             linux: "6.1"
             gcc: "11.3.0"
 
-          - target: x86_64-rhel7-linux-gnu
-            vendor: rhel7
-            glibc: "2.17"
-            linux: "3.10"
-            gcc: "4.8.5"
           - target: x86_64-aws2-linux-gnu
             vendor: aws2
             glibc: "2.26"
@@ -117,9 +112,6 @@ jobs:
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
           ./ct-ng
 
-          find .
-          pwd
-
           config_path=./samples/${{ matrix.target }}
           target=${{ matrix.target }}
           cp -r ${{ github.workspace}}/samples/${target%%-*}-unknown-linux-gnu $config_path
@@ -138,10 +130,7 @@ jobs:
           echo "CT_GCC_V_${gcc_ver//./_}=y" >> $config_path/crosstool.config
 
           if [[ "$gcc_ver" == 7.3.0 ]]; then
-            echo "CT_ISL_V_0_16=y" >> $config_path/crosstool.config
-          elif [[ "$gcc_ver" == 4.8.5 ]]; then
-            echo "CT_ISL_V_0_11=y" >> $config_path/crosstool.config
-            echo "CT_ISL_VERSION=\"0.11.1\"" >> $config_path/crosstool.config
+            echo 'CT_ISL_V_0_16=y' >> $config_path/crosstool.config
           fi
 
           echo "CT_LOG_PROGRESS_BAR=n" >> $config_path/crosstool.config
