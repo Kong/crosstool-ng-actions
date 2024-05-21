@@ -59,7 +59,7 @@ jobs:
             vendor: aws2
             glibc: "2.26"
             linux: "4.14"
-            gcc: "7.3.1"
+            gcc: "7.3.0"
           - target: aarch64-aws2023-linux-gnu
             vendor: aws2023
             glibc: "2.34"
@@ -75,7 +75,7 @@ jobs:
             vendor: aws2
             glibc: "2.26"
             linux: "4.14"
-            gcc: "7.3.1"
+            gcc: "7.3.0"
 
 
     steps:
@@ -168,9 +168,8 @@ jobs:
         run: |-
           asset=${{ matrix.target }}.tar.gz
           gcc_ver=${{ matrix.gcc }}
-          gcc_major_ver=${gcc_ver//./_}
           libc="-glibc-${{ matrix.glibc }}"
-          asset=${{ matrix.target }}${libc}-gcc-${gcc_major_ver}.tar.gz
+          asset=${{ matrix.target }}${libc}-gcc-${gcc_ver//./_}.tar.gz
 
           echo "asset=$asset" >> $GITHUB_OUTPUT
 
