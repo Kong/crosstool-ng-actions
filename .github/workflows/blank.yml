@@ -137,6 +137,13 @@ jobs:
           gcc_ver=${{ matrix.gcc }}
           echo "CT_GCC_V_${gcc_ver//./_}=y" >> $config_path/crosstool.config
 
+          if [[ "$gcc_ver" == 7.3.0 ]]; then
+            echo "CT_ISL_V_0_16=y" >> $config_path/crosstool.config
+          elif [[ "$gcc_ver" == 4.8.5 ]]; then
+            echo "CT_ISL_V_0_11=y" >> $config_path/crosstool.config
+            echo "CT_ISL_VERSION=\"0.11.1\"" >> $config_path/crosstool.config
+          fi
+
           echo "CT_LOG_PROGRESS_BAR=n" >> $config_path/crosstool.config
           
           cat $config_path/crosstool.config
