@@ -78,7 +78,7 @@ jobs:
           tar xf crosstool-ng-$CROSSTOOL_NG_VERSION.tar.bz2
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
 
-          cat << 'EOF' | patch
+          cat << 'EOF' | patch -p1
           diff --git a/configure b/configure
           index 8237712..f375511 100755
           --- a/configure
