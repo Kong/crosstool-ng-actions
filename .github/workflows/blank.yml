@@ -150,6 +150,7 @@ jobs:
           
           linux_ver=${{ matrix.linux }}
           if [[ "${{ matrix.vendor }}" == "rhel7" ]]; then
+            wget https://github.com/Kong/crosstool-ng-actions/releases/download/0.7.0/linux-${{ matrix.linux }}.tar.gz
             echo "CT_KERNEL_LINUX_CUSTOM=y" >> $config_path/crosstool.config
             echo "CT_KERNEL_LINUX_CUSTOM_LOCATION=\"${workspace}/linux-${{ matrix.linux }}.tar.gz\"" >> $config_path/crosstool.config
             echo "CT_KERNEL_LINUX_CUSTOM_VERSION=\"${{ matrix.linux }}\"" >> $config_path/crosstool.config
