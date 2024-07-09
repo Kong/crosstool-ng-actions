@@ -69,7 +69,7 @@ jobs:
           sudo apt update
           sudo apt install build-essential autoconf bison flex texinfo \
             help2man gawk libtool libtool-bin libtool-doc libncurses5-dev python3-dev \
-            python3-distutils git unzip gperf bash
+            python3-distutils git unzip gperf
 
       - name: "Download and build crosstool-ng"
         if: steps.cache-deps.outputs.cache-hit != 'true'
@@ -77,6 +77,8 @@ jobs:
           wget http://crosstool-ng.org/download/crosstool-ng/crosstool-ng-$CROSSTOOL_NG_VERSION.tar.bz2
           tar xf crosstool-ng-$CROSSTOOL_NG_VERSION.tar.bz2
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
+          wget https://github.com/crosstool-ng/crosstool-ng/commit/b0151f5eb53c5bf70d39512a3d73e529be90bc0a.patch
+          patch -p1 < b0151f5eb53c5bf70d39512a3d73e529be90bc0a.patch
           ./configure --enable-local
           make
           sudo make install
