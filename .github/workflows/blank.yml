@@ -101,6 +101,19 @@ jobs:
                       test -n "$ver" && acx_version_BASH_SHELL_ok=:
            fi
                 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for GNU bash >= 3.1" >&5
+          diff --git a/scripts/build/companion_libs/121-isl.sh b/scripts/build/companion_libs/121-isl.sh
+          index ef93bbd..3794376 100644
+          --- a/scripts/build/companion_libs/121-isl.sh
+          +++ b/scripts/build/companion_libs/121-isl.sh
+          @@ -14,7 +14,7 @@ if [ "${CT_ISL}" = "y" ]; then
+           # Download ISL
+           do_isl_get() {
+               CT_GetFile "isl-${CT_ISL_VERSION}" \
+          -        http://isl.gforge.inria.fr
+          +        https://gcc.gnu.org/pub/gcc/infrastructure
+           }
+          
+           # Extract ISL
           EOF
 
           ./configure --enable-local
