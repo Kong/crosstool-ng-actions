@@ -44,7 +44,7 @@ jobs:
           - target: x86_64-rhel7-linux-gnu
             vendor: rhel7
             glibc: "2.17"
-            linux: "3.10.0-229.14.1.el7"
+            linux: "3.10.0-1160.118.1.el7"
             gcc: "4.8.5"
 
 
@@ -149,9 +149,10 @@ jobs:
           
           linux_ver=${{ matrix.linux }}
           if [[ "${{ matrix.vendor }}" == "rhel7" ]]; then
-            wget https://github.com/Kong/crosstool-ng-actions/releases/download/0.7.0/linux-${{ matrix.linux }}.tar.gz
+            wget https://vault.centos.org/7.9.2009/updates/Source/SPackages/kernel-${{ matrix.linux }}.src.rpm
+            mkdir e; pushd e; sudo apt install rpm2cpio cpio -y; rpm2cpio ../kernel-${{ matrix.linux }}.src.rpm | cpio -idmv; cp linux-${{ matrix.linux }}.tar.xz ..; pushd 
             echo "CT_KERNEL_LINUX_CUSTOM=y" >> $config_path/crosstool.config
-            echo "CT_KERNEL_LINUX_CUSTOM_LOCATION=\"$(pwd)/linux-${{ matrix.linux }}.tar.gz\"" >> $config_path/crosstool.config
+            echo "CT_KERNEL_LINUX_CUSTOM_LOCATION=\"$(pwd)/linux-${{ matrix.linux }}.tar.xz\"" >> $config_path/crosstool.config
             echo "CT_KERNEL_LINUX_CUSTOM_VERSION=\"${{ matrix.linux }}\"" >> $config_path/crosstool.config
           else
             echo "CT_LINUX_V_${linux_ver//./_}=y" >> $config_path/crosstool.config
