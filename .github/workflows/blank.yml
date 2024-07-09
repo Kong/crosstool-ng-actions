@@ -44,7 +44,7 @@ jobs:
           - target: x86_64-rhel7-linux-gnu
             vendor: rhel7
             glibc: "2.17"
-            linux: "3.10"
+            linux: "3.10.0-229.14.1.el7"
             gcc: "4.8.5"
 
 
@@ -136,6 +136,7 @@ jobs:
       - name: "Configure target ${{ matrix.target }}"
         if: steps.cache-deps.outputs.cache-hit != 'true'
         run: |-
+          workspace=$(pwd)
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
           ./ct-ng
 
@@ -148,7 +149,13 @@ jobs:
           fi
           
           linux_ver=${{ matrix.linux }}
-          echo "CT_LINUX_V_${linux_ver//./_}=y" >> $config_path/crosstool.config
+          if [[ "${{ matrix.vendor }}" == "rhel7" ]]; then
+            echo "CT_KERNEL_LINUX_CUSTOM=y" >> $config_path/crosstool.config
+            echo "CT_KERNEL_LINUX_CUSTOM_LOCATION=\"${workspace}/linux-${{ matrix.linux }}.tar.gz\"" >> $config_path/crosstool.config
+            echo "CT_KERNEL_LINUX_CUSTOM_VERSION=\"${{ matrix.linux }}\"" >> $config_path/crosstool.config
+          else
+            echo "CT_LINUX_V_${linux_ver//./_}=y" >> $config_path/crosstool.config
+          fi
 
           glibc_ver=${{ matrix.glibc }}
           echo "CT_GLIBC_V_${glibc_ver//./_}=y" >> $config_path/crosstool.config
