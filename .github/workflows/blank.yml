@@ -34,8 +34,6 @@ jobs:
   compile:
     needs: prepare
     runs-on: ubuntu-latest
-    container:
-      image: ubuntu-20.04
     continue-on-error: true
     env:
       TARGET: '${{ matrix.target }}'
