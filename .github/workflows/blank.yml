@@ -77,8 +77,21 @@ jobs:
           wget http://crosstool-ng.org/download/crosstool-ng/crosstool-ng-$CROSSTOOL_NG_VERSION.tar.bz2
           tar xf crosstool-ng-$CROSSTOOL_NG_VERSION.tar.bz2
           cd crosstool-ng-$CROSSTOOL_NG_VERSION
-          wget https://github.com/crosstool-ng/crosstool-ng/commit/b0151f5eb53c5bf70d39512a3d73e529be90bc0a.patch
-          patch -p1 < b0151f5eb53c5bf70d39512a3d73e529be90bc0a.patch
+
+          echo "diff --git a/configure.ac b/configure.ac
+          index d10bf71..e2302b4 100644
+          --- a/configure.ac
+          +++ b/configure.ac
+          @@ -274,7 +274,7 @@ ACX_PROG_VERSION_REQ_STRICT([BASH_SHELL],
+               [GNU bash >= 3.1],
+               [bash],
+               [bash],
+          -    ['^GNU bash, version (3\.[1-9]|4)'])
+          +    ['^GNU bash, version (3\.[1-9]|4|5)'])
+          
+           # We need a awk that *is* GNU awk
+           ACX_PROG_VERSION_REQ_STRICT([AWK],"|patch
+
           ./configure --enable-local
           make
           sudo make install
