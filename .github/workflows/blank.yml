@@ -93,7 +93,7 @@ jobs:
         with:
           path: |
             x-tools
-          key: ${{ hashFiles('.github/**/*.yml') }}-${{ matrix.target }}
+          key: ${{ hashFiles('.github/**/*.yml') }}-${{ matrix.target }}-${{ matrix.gcc }}-${{ matrix.glibc }}-${{ matrix.linux }}
           # for testing
           #key: ${{ matrix.target }}
 
