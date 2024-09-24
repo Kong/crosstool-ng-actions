@@ -1,6 +1,5 @@
 name: Build cross compilers
 'on':
-  pull_request:
   workflow_dispatch:
     inputs:
       do_release:
