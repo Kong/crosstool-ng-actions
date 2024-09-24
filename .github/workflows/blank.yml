@@ -182,7 +182,8 @@ jobs:
 
       - name: 'Generate SHA256 checksum'
         run: |
-          sha256sum ${{ matrix.target }}.tar.gz > ${{ matrix.target }}.tar.gz.sha256
+          cp ${{ matrix.target }}.tar.gz ${{ steps.asset_name.outputs.asset }}
+          sha256sum ${{ steps.asset_name.outputs.asset }} > ${{ matrix.target }}.tar.gz.sha256
           cat ${{ matrix.target }}.tar.gz.sha256 >> $GITHUB_STEP_SUMMARY
 
       - id: upload-artifacts
@@ -223,13 +224,13 @@ jobs:
         run: |
           echo "# SHA256 Checksums" > summary.md
           echo "" >> summary.md
+          echo "\`\`\`" >> summary.md
           find artifacts -type f -name "*.sha256" | sort | while read -r file; do
             echo "## $(basename "${file%.sha256}")" >> summary.md
-            echo "\`\`\`" >> summary.md
             cat "$file" >> summary.md
-            echo "\`\`\`" >> summary.md
             echo "" >> summary.md
           done
+          echo "\`\`\`" >> summary.md
 
       - name: Update release with summary
         uses: ncipollo/release-action@v1
