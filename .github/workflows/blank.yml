@@ -183,7 +183,7 @@ jobs:
       - name: 'Generate SHA256 checksum'
         run: |
           sha256sum ${{ matrix.target }}.tar.gz > ${{ matrix.target }}.tar.gz.sha256
-          echo "${{ matrix.target }}.tar.gz SHA256: $(cat ${{ matrix.target }}.tar.gz.sha256)" >> $GITHUB_STEP_SUMMARY
+          cat ${{ matrix.target }}.tar.gz.sha256 >> $GITHUB_STEP_SUMMARY
 
       - id: upload-artifacts
         name: Upload artifacts
