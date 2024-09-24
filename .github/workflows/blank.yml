@@ -180,13 +180,20 @@ jobs:
 
           echo "asset=$asset" >> $GITHUB_OUTPUT
 
+      - name: 'Generate SHA256 checksum'
+        run: |
+          sha256sum ${{ steps.asset_name.outputs.asset }} > ${{ steps.asset_name.outputs.asset }}.sha256
+          echo "${{ steps.asset_name.outputs.asset }} SHA256: $(cat ${{ steps.asset_name.outputs.asset }}.sha256)" >> $GITHUB_STEP_SUMMARY
+
       - id: upload-artifacts
         name: Upload artifacts
         if: '${{ success() }}'
         continue-on-error: false
         uses: actions/upload-artifact@v4
         with:
-          path: '${{ matrix.target }}.tar.gz'
+          path: |
+            ${{ steps.asset_name.outputs.asset }}
+            ${{ steps.asset_name.outputs.asset }}.sha256
           name: '${{ steps.asset_name.outputs.asset }}'
 
       - id: upload-releases
@@ -195,10 +202,39 @@ jobs:
         if: '${{ github.event.inputs.do_release == ''true'' }}'
         continue-on-error: false
         with:
-          asset_path: '${{ matrix.target }}.tar.gz'
+          asset_path: '${{ steps.asset_name.outputs.asset }}'
           asset_name: '${{ steps.asset_name.outputs.asset }}'
           upload_url: '${{ needs.prepare.outputs.upload_url }}'
           asset_content_type: application/gzip
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
 
+  generate_summary:
+    needs: [prepare, compile]
+    runs-on: ubuntu-latest
+    if: '${{ github.event.inputs.do_release == ''true'' }}'
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Generate summary
+        run: |
+          echo "# SHA256 Checksums" > summary.md
+          echo "" >> summary.md
+          find artifacts -type f -name "*.sha256" | sort | while read -r file; do
+            echo "## $(basename "${file%.sha256}")" >> summary.md
+            echo "\`\`\`" >> summary.md
+            cat "$file" >> summary.md
+            echo "\`\`\`" >> summary.md
+            echo "" >> summary.md
+          done
+
+      - name: Update release with summary
+        uses: ncipollo/release-action@v1
+        with:
+          allowUpdates: true
+          tag: '${{ github.event.inputs.release }}'
+          bodyFile: "summary.md"
+          token: '${{ secrets.GITHUB_TOKEN }}'
