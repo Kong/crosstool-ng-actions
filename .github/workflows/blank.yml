@@ -33,7 +33,10 @@ jobs:
 
   compile:
     needs: prepare
-    runs-on: ubuntu-latest
+    # Pin to 22.04: 24.04 (noble) dropped python3-distutils (removed in
+    # Python 3.12), which this toolchain build still depends on. 22.04 is also
+    # the documented/tested host for these toolchains.
+    runs-on: ubuntu-22.04
     continue-on-error: true
     env:
       TARGET: '${{ matrix.target }}'
