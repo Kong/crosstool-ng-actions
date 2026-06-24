@@ -94,6 +94,15 @@ jobs:
             linux: "4.14"
             gcc: "8.5.0"
 
+          # Wolfi (Chainguard) x86_64 — counterpart of aarch64-wolfi, so Kong's
+          # amd64 distroless build uses the same gcc 11.3 / glibc 2.34 toolchain
+          # instead of the Wolfi container's very new gcc.
+          - target: x86_64-wolfi-linux-gnu
+            vendor: wolfi
+            glibc: "2.34"
+            linux: "5.14"
+            gcc: "11.3.0"
+
 
     steps:
       - name: Checkout source code
