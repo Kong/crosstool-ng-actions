@@ -9,5 +9,6 @@ Currently, following tool chains are produced:
 - Target: AmazonLinux 2023 aarch64 (aarch64-aws2023-linux-gnu-glibc-2.34-gcc-11.tar.gz)
 - Target: RHEL 8 aarch64 (aarch64-rhel8-linux-gnu-glibc-2.28-gcc-8.tar.gz)
 - Target: RHEL 9 aarch64 (aarch64-rhel9-linux-gnu-glibc-2.34-gcc-11.tar.gz)
+- Target: Wolfi aarch64 (aarch64-wolfi-linux-gnu-glibc-2.34-gcc-11.tar.gz)
 
 All toolchain's host platform is modern Linux x86_64 OS, typically Ubuntu 22.04 is tested.

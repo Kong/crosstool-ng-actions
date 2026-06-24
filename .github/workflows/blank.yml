@@ -71,6 +71,15 @@ jobs:
             linux: "6.1"
             gcc: "11.3.0"
 
+          # Wolfi (Chainguard) aarch64 — used to cross-build Kong for the
+          # distroless/wolfi base image. Wolfi ships a newer glibc, so a 2.34
+          # baseline links binaries that run on it (glibc is forward-compatible).
+          - target: aarch64-wolfi-linux-gnu
+            vendor: wolfi
+            glibc: "2.34"
+            linux: "5.14"
+            gcc: "11.3.0"
+
           - target: x86_64-aws2-linux-gnu
             vendor: aws2
             glibc: "2.26"
